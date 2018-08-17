@@ -1,5 +1,11 @@
 package board
 
+import (
+	"math/rand"
+	"strconv"
+	"time"
+)
+
 // 上下左右四个指令
 const (
 	U = 0
@@ -8,6 +14,12 @@ const (
 	R = 3
 )
 
-func RandomActions() string {
+func RandomActions() (actions string) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
+	for i := 0; i < 1000; i++ {
+		j := r.Intn(4)
+		actions += strconv.Itoa(j)
+	}
+	return
 }
