@@ -43,12 +43,20 @@ func (b *Board) randomOne() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	index := r.Intn(len(whitespace))
 
-	b.setValue(index, 2)
+	b.setValueBase(index, 2)
 
 }
 
-func (b *Board) setValue(index int, value int) {
+func (b *Board) setValueBase(index int, value int) {
 	b[index] = value
+}
+
+func (b *Board) setValue(x, y, v int) {
+	b[x*SIZE+y] = v
+}
+
+func (b *Board) getValue(x, y int) int {
+	return b[x*SIZE+y]
 }
 
 func (b *Board) getAllWhitespace() (lst []int) {
@@ -79,30 +87,271 @@ func (b *Board) DoActionList(actions string) {
 			break
 
 		}
+
+		if b.checkWin() {
+			log.Println("win...")
+			return
+		}
+
+		b.randomOne()
+
+		if b.checkFail() {
+			log.Println("fail...")
+			return
+		}
+
 	}
 
 }
 
 func (b *Board) U() {
 
+	for x := 0; x < SIZE; x++ {
+
+		var newlst []int
+
+		var last int
+
+		for y := SIZE - 1; y >= 0; y-- {
+
+			v := b.getValue(x, y)
+			if v == 0 {
+				continue
+			}
+
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if v == last {
+				newlst = append(newlst, last*2)
+				last = 0
+				continue
+			} else {
+				newlst = append(newlst, last)
+				last = v
+				continue
+			}
+
+		}
+
+		for y := SIZE - 1; y >= 0; y-- {
+			if x < len(newlst) {
+				b.setValue(x, y, newlst[y])
+			} else {
+				b.setValue(x, y, 0)
+			}
+		}
+
+	}
+
 }
 
 func (b *Board) D() {
 
+	for x := 0; x < SIZE; x++ {
+
+		var newlst []int
+
+		var last int
+
+		for y := 0; y < SIZE; y++ {
+
+			v := b.getValue(x, y)
+			if v == 0 {
+				continue
+			}
+
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if v == last {
+				newlst = append(newlst, last*2)
+				last = 0
+				continue
+			} else {
+				newlst = append(newlst, last)
+				last = v
+				continue
+			}
+
+		}
+
+		for y := 0; y < SIZE; y++ {
+			if x < len(newlst) {
+				b.setValue(x, y, newlst[y])
+			} else {
+				b.setValue(x, y, 0)
+			}
+		}
+
+	}
+
 }
 
 func (b *Board) L() {
+	// 往左滑动，每一行
+	for y := 0; y < SIZE; y++ {
+
+		var newlst []int
+
+		var last int
+
+		for x := 0; x < SIZE; x++ {
+
+			v := b.getValue(x, y)
+			if v == 0 {
+				continue
+			}
+
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if v == last {
+				newlst = append(newlst, last*2)
+				last = 0
+				continue
+			} else {
+				newlst = append(newlst, last)
+				last = v
+				continue
+			}
+
+		}
+
+		for x := 0; x < SIZE; x++ {
+			if x < len(newlst) {
+				b.setValue(x, y, newlst[x])
+			} else {
+				b.setValue(x, y, 0)
+			}
+		}
+
+	}
 
 }
 
 func (b *Board) R() {
+	for y := 0; y < SIZE; y++ {
 
+		var newlst []int
+
+		var last int
+
+		for x := SIZE - 1; x >= 0; x-- {
+
+			v := b.getValue(x, y)
+			if v == 0 {
+				continue
+			}
+
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if v == last {
+				newlst = append(newlst, last*2)
+				last = 0
+				continue
+			} else {
+				newlst = append(newlst, last)
+				last = v
+				continue
+			}
+
+		}
+
+		for x := SIZE - 1; x >= 0; x-- {
+			if x < len(newlst) {
+				b.setValue(x, y, newlst[x])
+			} else {
+				b.setValue(x, y, 0)
+			}
+		}
+
+	}
 }
 
-func (b *Board) checkWin() {
+func (b *Board) getBestV() (best int) {
+	for x := 0; x < SIZE; x++ {
+		for y := 0; y < SIZE; y++ {
+			v := b.getValue(x, y)
+			if v > best {
+				best = v
+			}
+		}
+	}
+	return
+}
+
+func (b *Board) checkWin() bool {
 	// 出现2048
+	bestV := b.getBestV()
+	if bestV >= 2048 {
+		return true
+	}
+	return false
 }
 
-func (b *Board) checkFail() {
+func (b *Board) checkFail() bool {
 	// 不能滑动
+	// 所有格子都是满的，上下左右相邻的没有一样的
+
+	for x := 0; x < SIZE; x++ {
+
+		var last int
+
+		for y := 0; y < SIZE; y++ {
+			v := b.getValue(x, y)
+
+			if v == 0 {
+				return false
+			}
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if last == v {
+				return false
+			} else {
+				last = v
+				continue
+			}
+		}
+
+	}
+
+	for y := 0; y < SIZE; y++ {
+
+		var last int
+
+		for x := 0; x < SIZE; x++ {
+			v := b.getValue(x, y)
+
+			if v == 0 {
+				return false
+			}
+			if last == 0 {
+				last = v
+				continue
+			}
+
+			if last == v {
+				return false
+			} else {
+				last = v
+				continue
+			}
+		}
+
+	}
+
+	return true
 }
