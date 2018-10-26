@@ -15,12 +15,12 @@ func Init() {
 }
 
 //type Board [SIZE][SIZE]int
-type Board [SIZE * SIZE]int
+type Board []int
 
 func NewBoard() *Board {
-	b := &Board{}
+	b := make(Board, SIZE*SIZE)
 	b.Init()
-	return b
+	return &b
 }
 
 func (b *Board) Init() {
@@ -47,19 +47,19 @@ func (b *Board) randomOne() {
 
 }
 
-func (b *Board) setValueBase(index int, value int) {
+func (b Board) setValueBase(index int, value int) {
 	b[index] = value
 }
 
-func (b *Board) setValue(x, y, v int) {
+func (b Board) setValue(x, y, v int) {
 	b[x*SIZE+y] = v
 }
 
-func (b *Board) getValue(x, y int) int {
+func (b Board) getValue(x, y int) int {
 	return b[x*SIZE+y]
 }
 
-func (b *Board) getAllWhitespace() (lst []int) {
+func (b Board) getAllWhitespace() (lst []int) {
 
 	// 获取一个所有空白的下标数组
 	for index, value := range b {

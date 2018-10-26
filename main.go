@@ -1,4 +1,4 @@
-package game_2048_go
+package main
 
 import "github.com/mingz2013/game-2048-go/board"
 
