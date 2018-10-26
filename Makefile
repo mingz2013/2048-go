@@ -1,5 +1,5 @@
 help:
-	echo "help"
+	@echo "Makefile help"
 
 game-2048-go:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
@@ -17,5 +17,5 @@ run:
 	docker run --net="host" -it mingz2013/game-2048-go
 
 
-.PYONY: commit-docker, docker-image, game-2048-go, help
+.PYONY: help, commit-docker, docker-image, game-2048-go, run
 
